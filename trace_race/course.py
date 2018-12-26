@@ -4,8 +4,8 @@ import numpy as np
 
 
 class Course:
-    def __init__(self, image, speed=1, height=100, display_width=200):
-        self.course_image = imutils.resize(image, height=height)
+    def __init__(self, image_path, speed=1, height=100, display_width=200):
+        self.course_image = imutils.resize(cv2.imread(image_path), height=height)
         self.path = self._find_path()
 
         self.course_progress = 0
