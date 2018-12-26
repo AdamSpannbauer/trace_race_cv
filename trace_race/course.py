@@ -12,7 +12,6 @@ class Course:
         self.speed = speed
 
         self.x = 0
-        self.y = 0
         self.height = height
         self.width = display_width
 
@@ -44,12 +43,22 @@ class Course:
 
         return image
 
-    def is_on_path(self, xy):
+    def draw_on_course(self, point, color):
+        pass
+
+    def _is_on_course(self, point, image):
+        x, y = point
+        h, w = image.shape[:2]
+
+        return 0 >= y >= self.height and self.x >= x >= w
+
+    def is_on_path(self, point):
         on_path = False
-        adjusted_x = xy[0] - self.x
+        x, y = point
+        adjusted_x = x - self.x
 
         if (0 <= adjusted_x <= self.course_image.shape[1] and
-                0 <= xy[1] <= self.course_image.shape[0]):
-            on_path = self.path[xy[1], adjusted_x] == 255
+                0 <= y <= self.course_image.shape[0]):
+            on_path = self.path[y, adjusted_x] == 255
 
         return on_path
