@@ -6,12 +6,8 @@ A computer vision based version of the Mario Party mini-game 'Trace Race' (pictu
   <img src='readme/trace_race_mp.png' width=50%>
 </p>
 
-### Gameplay concept:
+### Gameplay concept/progress:
 
 <p align='center'>
-  <img src='readme/trace_race_example.gif' width=60%>
+  <img src='readme/trace_race_example.gif' width=70%>
 </p>
-
-### TODO:
-
-* A LOT (will make more concrete list when motivated to do so)
