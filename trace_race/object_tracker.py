@@ -13,7 +13,7 @@ object_trackers = {
 
 
 class ObjectTracker:
-    def __init__(self, tracker_type='kcf'):
+    def __init__(self, tracker_type='csrt'):
         self.tracker_type = tracker_type
         self.tracker = object_trackers[tracker_type]()
         self.bounding_box = None
@@ -22,10 +22,10 @@ class ObjectTracker:
 
     def init(self, frame):
         self.is_tracking = True
-        self.tracker.init(frame, self.bounding_box)
+        self.tracker.init(frame[:, :, :3], self.bounding_box)
 
     def update(self, frame):
-        self.success, self.bounding_box = self.tracker.update(frame)
+        self.success, self.bounding_box = self.tracker.update(frame[:, :, :3])
 
     def center_point(self):
         (x, y, w, h) = [int(v) for v in self.bounding_box]
