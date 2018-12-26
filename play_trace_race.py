@@ -4,7 +4,7 @@ from trace_race import TraceRace
 ap = argparse.ArgumentParser()
 ap.add_argument("-w", "--width", default=500, type=int,
                 help='Display width')
-ap.add_argument("-c", "--color", default="pink",
+ap.add_argument("-c", "--color", required=False,
                 help="Crayon color. Options: ['blue', 'green', 'pink', 'red', 'yellow']")
 args = vars(ap.parse_args())
 

@@ -36,7 +36,7 @@ class TraceRace:
         if self.crayon_color not in CRAYON_BGR_COLOR_DICT.keys():
             print('No valid crayon color provided; choosing at random')
 
-            self.crayon_color = random.sample(CRAYON_BGR_COLOR_DICT.keys())
+            self.crayon_color = random.choice(list(CRAYON_BGR_COLOR_DICT.keys()))
 
         self.crayon_color_bgr = CRAYON_BGR_COLOR_DICT[self.crayon_color]
         self.crayon = Crayon(f'{CRAYON_DIR}/{self.crayon_color}.png')
