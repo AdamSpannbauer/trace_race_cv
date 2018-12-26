@@ -1,98 +1,92 @@
-from imutils.video import FPS
-import argparse
+import random
 import imutils
 import cv2
-from object_tracker import ObjectTracker
-from course import Course
-from crayon import Crayon
+from .object_tracker import ObjectTracker
+from .course import Course
+from .crayon import Crayon
+
+CRAYON_DIR = 'crayons'
+COURSE_DIR = 'courses'
+
+CRAYON_BGR_COLOR_DICT = {
+    'blue': (255, 0, 0),
+    'green': (0, 255, 0),
+    'pink': (240, 70, 220),
+    'red': (0, 0, 255),
+    'yellow': (60, 200, 250)
+}
 
 
-# construct the argument parser and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-t", "--tracker", default="csrt",
-                help="OpenCV object tracker type")
-ap.add_argument("-w", "--width", default=500, type=int,
-                help='Display width')
-ap.add_argument("-c", "--color", default="pink",
-                help="Crayon color. Options: ['blue', 'green', 'pink', 'red', 'yellow']")
-args = vars(ap.parse_args())
+class TraceRace:
+    def __init__(self, crayon_color=None, course_number=None, frame_width=500, tracker_type="csrt"):
+        # TODO: add more courses, and random/user selection
+        course_number = 0
+        self.course = Course(f'{COURSE_DIR}/course{course_number}.png')
 
-tracker = ObjectTracker(args['tracker'])
-crayon = Crayon(f'../crayons/{args["color"]}.png')
-course_img = cv2.imread('../courses/course0.png')
-course = Course(course_img)
+        self.crayon_color = crayon_color
+        self.crayon_color_bgr = None  # Defined by self._set_crayon_attributes()
+        self.crayon = None            # Defined by self._set_crayon_attributes()
+        self._set_crayon_attributes()
 
-vidcap = cv2.VideoCapture(0)
+        self.tracker = ObjectTracker(tracker_type)
 
-# initialize the FPS throughput estimator
-fps = None
+        self.frame_width = frame_width
 
-# loop over frames from the video stream
-while True:
-    # grab the current frame, then handle if we are using a
-    # VideoStream or VideoCapture object
-    grabbed, frame = vidcap.read()
+    def _set_crayon_attributes(self):
+        if self.crayon_color not in CRAYON_BGR_COLOR_DICT.keys():
+            print('No valid crayon color provided; choosing at random')
 
-    # check to see if we have reached the end of the stream
-    if not grabbed:
-        break
+            self.crayon_color = random.sample(CRAYON_BGR_COLOR_DICT.keys())
 
-    # resize the frame (so we can process it faster) and grab the
-    # frame dimensions
-    frame = imutils.resize(frame, width=args['width'])
-    (frame_h, frame_w) = frame.shape[:2]
+        self.crayon_color_bgr = CRAYON_BGR_COLOR_DICT[self.crayon_color]
+        self.crayon = Crayon(f'{CRAYON_DIR}/{self.crayon_color}.png')
 
-    # flip frame for more natural motion
-    frame = cv2.flip(frame, 1)
+    def play(self):
+        vidcap = cv2.VideoCapture(0)
 
-    # check to see if we are currently tracking an object
-    if tracker.is_tracking:
-        # grab the new bounding box coordinates of the object
-        tracker.update(frame)
+        while True:
+            grabbed, frame = vidcap.read()
 
-        # check to see if the tracking was a success
-        if tracker.success:
-            x, y = tracker.center_point()
-            crayon.draw(frame, (x, y))
+            if not grabbed:
+                break
 
-        # update the FPS counter
-        fps.update()
-        fps.stop()
+            # resize the frame and grab dimensions
+            frame = imutils.resize(frame, width=self.frame_width)
 
-        # initialize the set of information we'll be displaying on
-        # the frame
-        info = [
-            ("Tracker", args["tracker"]),
-            ("Success", "Yes" if tracker.success else "No"),
-            ("FPS", "{:.2f}".format(fps.fps())),
-        ]
+            # flip frame for more natural motion
+            frame = cv2.flip(frame, 1)
 
-        # loop over the info tuples and draw them on our frame
-        for (i, (k, v)) in enumerate(info):
-            text = "{}: {}".format(k, v)
-            cv2.putText(frame, text, (10, frame_h - ((i * 20) + 20)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+            # check to see if we are currently tracking an object
+            if self.tracker.is_tracking:
+                # grab the new bounding box coordinates of the object
+                self.tracker.update(frame)
+                self.course.draw(frame)
 
-    # show the output frame
-    course.draw(frame)
-    cv2.imshow("Trace Race!", frame)
-    key = cv2.waitKey(1) & 0xFF
+                # check to see if the tracking was a success
+                if self.tracker.success:
+                    x, y = self.tracker.center_point()
+                    self.crayon.draw(frame, (x, y))
+            else:
+                self.course.draw(frame)
 
-    # if the 's' key is selected, we are going to "select" a bounding
-    # box to track
-    if key == ord("s"):
-        tracker.bounding_box = cv2.selectROI("Frame", frame, fromCenter=False,
-                                             showCrosshair=True)
+            # show the output frame
+            cv2.imshow("Trace Race!", frame)
+            key = cv2.waitKey(1) & 0xFF
 
-        tracker.init(frame)
-        fps = FPS().start()
-    elif key == ord("q") or key == 27:
-        break
+            # if the 's' key is selected, we are going to "select" a bounding
+            # box to track
+            if key == ord("s"):
+                self.tracker.bounding_box = cv2.selectROI("Frame", frame, fromCenter=False,
+                                                          showCrosshair=True)
 
-vidcap.release()
+                self.tracker.init(frame)
+            elif key == ord("q") or key == 27:
+                break
 
-# close all windows
-cv2.destroyAllWindows()
+        vidcap.release()
+
+        # close all windows
+        cv2.destroyAllWindows()
 
 
 
