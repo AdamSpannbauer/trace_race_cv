@@ -3,21 +3,24 @@ import argparse
 import imutils
 import cv2
 from object_tracker import ObjectTracker
-from tracer import Tracer
 from course import Course
+from crayon import Crayon
 
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-t", "--tracker", default="kcf",
+ap.add_argument("-t", "--tracker", default="csrt",
                 help="OpenCV object tracker type")
 ap.add_argument("-w", "--width", default=500, type=int,
                 help='Display width')
+ap.add_argument("-c", "--color", default="pink",
+                help="Crayon color. Options: ['blue', 'green', 'pink', 'red', 'yellow']")
 args = vars(ap.parse_args())
 
 tracker = ObjectTracker(args['tracker'])
-tracer = Tracer()
-course = Course(cv2.imread('courses/course0.png'))
+crayon = Crayon(f'../crayons/{args["color"]}.png')
+course_img = cv2.imread('../courses/course0.png')
+course = Course(course_img)
 
 vidcap = cv2.VideoCapture(0)
 
@@ -38,6 +41,8 @@ while True:
     # frame dimensions
     frame = imutils.resize(frame, width=args['width'])
     (frame_h, frame_w) = frame.shape[:2]
+
+    # flip frame for more natural motion
     frame = cv2.flip(frame, 1)
 
     # check to see if we are currently tracking an object
@@ -48,8 +53,7 @@ while True:
         # check to see if the tracking was a success
         if tracker.success:
             x, y = tracker.center_point()
-            tracer.points.append((x, y))
-            tracer.draw(frame)
+            crayon.draw(frame, (x, y))
 
         # update the FPS counter
         fps.update()
