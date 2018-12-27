@@ -7,6 +7,7 @@ class Course:
     def __init__(self, image_path, speed=1, height=100, display_width=200):
         self.course_image = imutils.resize(cv2.imread(image_path), height=height)
         self.path = self._find_path()
+        self.n_path_points = self._calc_path_points()
 
         self.course_progress = 0
         self.speed = speed
@@ -22,6 +23,12 @@ class Course:
         split = np.median(gray_course)
         _, threshed_course = cv2.threshold(gray_course, split, 255, cv2.THRESH_BINARY)
         return threshed_course
+
+    def _calc_path_points(self):
+        kernel = np.ones((5, 5), np.uint8)
+        eroded_path = cv2.erode(self.path, kernel, iterations=1)
+
+        return sum(eroded_path.flatten() == 255)
 
     def _update(self):
         if self.course_progress + self.width < self.course_image.shape[1]:
@@ -53,8 +60,6 @@ class Course:
             self.on_path_checks.append(self.is_on_path(point))
             cv2.circle(self.course_image, (x, y), radius=3, color=color, thickness=-1)
 
-            print(f'Accuracy: {self.calc_accuracy()}%')
-
     def is_on_course(self, image, point):
         x, y = point
         h, w = image.shape[:2]
@@ -68,3 +73,7 @@ class Course:
     def calc_accuracy_percent(self, precision=2):
         acc = sum(self.on_path_checks) / len(self.on_path_checks)
         return round(100 * acc, precision)
+
+    def calc_coverage_percent(self, precision=4):
+        cov = sum(self.on_path_checks) / self.n_path_points
+        return round(100 * cov, precision)

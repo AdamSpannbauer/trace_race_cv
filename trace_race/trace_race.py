@@ -80,11 +80,16 @@ class TraceRace:
                         self.crayon.draw(draw_frame, (x, y))
                         self.course.draw_on_course(draw_frame, (x, y), self.crayon_color_bgr)
 
-                        text = f'Accuracy: {self.course.calc_accuracy()}%'
-                        cv2.putText(draw_frame, text, (10, draw_frame.shape[0] - 20),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
                     else:
                         self.gray_crayon.draw(draw_frame, (x, y))
+
+                    text = f'Accuracy: {self.course.calc_accuracy_percent()}%'
+                    cv2.putText(draw_frame, text, (10, draw_frame.shape[0] - 20),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+
+                    text = f'Coverage: {self.course.calc_coverage_percent()}%'
+                    cv2.putText(draw_frame, text, (10, draw_frame.shape[0] - 40),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
             else:
                 draw_outlined_box(draw_frame, self.tracker_init_bound_box)
 
