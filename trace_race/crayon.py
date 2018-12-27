@@ -27,6 +27,10 @@ class Crayon:
     def draw(self, frame, tracking_centroid):
         x, y = tracking_centroid
 
+        # shift since tip of crayon assets not perfectly in bottom corner
+        x += 3
+        y += 3
+
         # crop overhanging portions of crayon image
         overhang_x = x - self.crayon_w
         overhang_y = y - self.crayon_h
