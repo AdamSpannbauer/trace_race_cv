@@ -26,6 +26,7 @@ class TraceRace:
         self._course_height = 110
         self.course = Course(self._course_path, height=self._course_height)
 
+        self.gray_crayon = Crayon(f'{CRAYON_DIR}/gray.png')
         self.crayon_color = crayon_color
         self.crayon_color_bgr = None  # Defined by self._set_crayon_attributes()
         self.crayon = None            # Defined by self._set_crayon_attributes()
@@ -75,8 +76,11 @@ class TraceRace:
                 # check to see if the tracking was a success
                 if self.tracker.success:
                     x, y = self.tracker.center_point()
-                    self.crayon.draw(draw_frame, (x, y))
-                    self.course.draw_on_course(draw_frame, (x, y), self.crayon_color_bgr)
+                    if self.course.is_on_course(draw_frame, (x, y)):
+                        self.crayon.draw(draw_frame, (x, y))
+                        self.course.draw_on_course(draw_frame, (x, y), self.crayon_color_bgr)
+                    else:
+                        self.gray_crayon.draw(draw_frame, (x, y))
             else:
                 draw_outlined_box(draw_frame, self.tracker_init_bound_box)
 

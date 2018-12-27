@@ -44,12 +44,12 @@ class Course:
         return image
 
     def draw_on_course(self, image, point, color):
-        if self._is_on_course(point, image):
+        if self.is_on_course(image, point):
             x, y = point
             x = x - self.x + self.course_progress
             cv2.circle(self.course_image, (x, y), radius=3, color=color, thickness=-1)
 
-    def _is_on_course(self, point, image):
+    def is_on_course(self, image, point):
         x, y = point
         h, w = image.shape[:2]
 
