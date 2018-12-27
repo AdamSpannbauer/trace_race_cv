@@ -76,6 +76,7 @@ class TraceRace:
                 if self.tracker.success:
                     x, y = self.tracker.center_point()
                     self.crayon.draw(draw_frame, (x, y))
+                    self.course.draw_on_course(draw_frame, (x, y), self.crayon_color_bgr)
             else:
                 draw_outlined_box(draw_frame, self.tracker_init_bound_box)
 

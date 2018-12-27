@@ -43,14 +43,17 @@ class Course:
 
         return image
 
-    def draw_on_course(self, point, color):
-        pass
+    def draw_on_course(self, image, point, color):
+        if self._is_on_course(point, image):
+            x, y = point
+            x = x - self.x + self.course_progress
+            cv2.circle(self.course_image, (x, y), radius=3, color=color, thickness=-1)
 
     def _is_on_course(self, point, image):
         x, y = point
         h, w = image.shape[:2]
 
-        return 0 >= y >= self.height and self.x >= x >= w
+        return 0 <= y <= self.height and self.x <= x <= w
 
     def is_on_path(self, point):
         on_path = False
