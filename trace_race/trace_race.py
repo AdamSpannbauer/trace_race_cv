@@ -79,6 +79,10 @@ class TraceRace:
                     if self.course.is_on_course(draw_frame, (x, y)):
                         self.crayon.draw(draw_frame, (x, y))
                         self.course.draw_on_course(draw_frame, (x, y), self.crayon_color_bgr)
+
+                        text = f'Accuracy: {self.course.calc_accuracy()}%'
+                        cv2.putText(draw_frame, text, (10, draw_frame.shape[0] - 20),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
                     else:
                         self.gray_crayon.draw(draw_frame, (x, y))
             else:

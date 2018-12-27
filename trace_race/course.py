@@ -15,6 +15,8 @@ class Course:
         self.height = height
         self.width = display_width
 
+        self.on_path_checks = []
+
     def _find_path(self):
         gray_course = cv2.cvtColor(self.course_image, cv2.COLOR_BGR2GRAY)
         split = np.median(gray_course)
@@ -47,7 +49,11 @@ class Course:
         if self.is_on_course(image, point):
             x, y = point
             x = x - self.x + self.course_progress
+
+            self.on_path_checks.append(self.is_on_path(point))
             cv2.circle(self.course_image, (x, y), radius=3, color=color, thickness=-1)
+
+            print(f'Accuracy: {self.calc_accuracy()}%')
 
     def is_on_course(self, image, point):
         x, y = point
@@ -56,12 +62,9 @@ class Course:
         return 0 <= y <= self.height and self.x <= x <= w
 
     def is_on_path(self, point):
-        on_path = False
         x, y = point
-        adjusted_x = x - self.x
+        return self.path[y, x] == 255
 
-        if (0 <= adjusted_x <= self.course_image.shape[1] and
-                0 <= y <= self.course_image.shape[0]):
-            on_path = self.path[y, adjusted_x] == 255
-
-        return on_path
+    def calc_accuracy_percent(self, precision=2):
+        acc = sum(self.on_path_checks) / len(self.on_path_checks)
+        return round(100 * acc, precision)
