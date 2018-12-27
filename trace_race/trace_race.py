@@ -127,6 +127,7 @@ class TraceRace:
             elif key == ord("q") or key == 27:
                 break
             elif key == ord("r"):
+                self.play_countdown = self.play_countdown_start
                 self.tracker = ObjectTracker(self._tracker_type)
                 self.course = Course(self._course_path, height=self._course_height)
 
