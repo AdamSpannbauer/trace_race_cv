@@ -41,7 +41,7 @@ class TraceRace:
                                        frame_width // 10,
                                        frame_width // 10)
 
-        self.play_countdown_start = self.play_countdown = 90
+        self.play_countdown_start = self.play_countdown = 40
 
     def _set_crayon_attributes(self):
         if self.crayon_color not in CRAYON_BGR_COLOR_DICT.keys():
