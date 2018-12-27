@@ -4,7 +4,7 @@ import cv2
 from .object_tracker import ObjectTracker
 from .course import Course
 from .crayon import Crayon
-from .utils import draw_outlined_box
+from .utils import draw_outlined_box, put_centered_text
 
 CRAYON_DIR = 'crayons'
 COURSE_DIR = 'courses'
@@ -41,6 +41,8 @@ class TraceRace:
                                        frame_width // 10,
                                        frame_width // 10)
 
+        self.play_countdown_start = self.play_countdown = 90
+
     def _set_crayon_attributes(self):
         if self.crayon_color not in CRAYON_BGR_COLOR_DICT.keys():
             print('No valid crayon color provided; choosing at random')
@@ -49,6 +51,19 @@ class TraceRace:
 
         self.crayon_color_bgr = CRAYON_BGR_COLOR_DICT[self.crayon_color]
         self.crayon = Crayon(f'{CRAYON_DIR}/{self.crayon_color}.png')
+
+    def _update_play_countdown(self):
+        self.play_countdown -= 1
+
+        cd_percent = self.play_countdown / self.play_countdown_start
+        if cd_percent >= 0.66:
+            countdown_display = 3
+        elif cd_percent >= 0.33:
+            countdown_display = 2
+        else:
+            countdown_display = 1
+
+        return countdown_display
 
     def play(self):
         vidcap = cv2.VideoCapture(0)
@@ -71,25 +86,34 @@ class TraceRace:
             if self.tracker.is_tracking:
                 # grab the new bounding box coordinates of the object
                 self.tracker.update(raw_frame)
-                self.course.draw(draw_frame)
+                if self.play_countdown > 0:
+                    countdown_display = self._update_play_countdown()
+                    self.course.draw(draw_frame, update=False)
+                    put_centered_text(draw_frame, countdown_display,
+                                      size=10, color=(0, 0, 255), thickness=10)
+                else:
+                    self.course.draw(draw_frame)
 
                 # check to see if the tracking was a success
                 if self.tracker.success:
                     x, y = self.tracker.center_point()
-                    if self.course.is_on_course(draw_frame, (x, y)):
+                    if self.play_countdown > 0:
                         self.crayon.draw(draw_frame, (x, y))
-                        self.course.draw_on_course(draw_frame, (x, y), self.crayon_color_bgr)
-
                     else:
-                        self.gray_crayon.draw(draw_frame, (x, y))
+                        if self.course.is_on_course(draw_frame, (x, y)):
+                            self.crayon.draw(draw_frame, (x, y))
+                            self.course.draw_on_course(draw_frame, (x, y), self.crayon_color_bgr)
 
-                    text = f'Accuracy: {self.course.calc_accuracy_percent()}%'
-                    cv2.putText(draw_frame, text, (10, draw_frame.shape[0] - 20),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+                        else:
+                            self.gray_crayon.draw(draw_frame, (x, y))
 
-                    text = f'Coverage: {self.course.calc_coverage_percent()}%'
-                    cv2.putText(draw_frame, text, (10, draw_frame.shape[0] - 40),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+                        text = f'Accuracy: {self.course.calc_accuracy_percent()}%'
+                        cv2.putText(draw_frame, text, (10, draw_frame.shape[0] - 20),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+
+                        text = f'Coverage: {self.course.calc_coverage_percent()}%'
+                        cv2.putText(draw_frame, text, (10, draw_frame.shape[0] - 40),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
             else:
                 draw_outlined_box(draw_frame, self.tracker_init_bound_box)
 
