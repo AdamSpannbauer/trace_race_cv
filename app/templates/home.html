@@ -1,9 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
   <div class="jumbo">
-    <h2>Welcome to the Flask app</h2>
-    <h3>This is the home page for the Flask app</h3>
-    <h4>Video Streaming Demonstration</h4>
-    <img src="{{ url_for('video_feed') }}">
+    <h2>Welcome to Trace Race CV</h2>
+    <h3>Center the object to be tracked and press space to start</h3>
+    <p align="center">
+      <img src="{{ url_for('video_feed') }}" width="70%">
+    </p>
+    <script src="{{ url_for('static', filename='js/keypress.js') }}"></script>
   </div>
 {% endblock %}
