@@ -10,13 +10,15 @@ A computer vision based version of the Mario Party mini-game 'Trace Race' (pictu
 
 ### Play online with Flask built frontend*
 
-**Not yet hosted anywhere*
+**Not yet hosted anywhere.*
 
 <p align='center'>
   <img src='readme/web_trace_race_example.gif' width=70%>
 </p>
 
-### Play locally with OpenCV's GUI
+### Play locally with OpenCV's GUI*
+
+**Below example gif has a bug in coverage scoring; bug is fixed but didn't feel like re-recording gif.*
 
 <p align='center'>
   <img src='readme/trace_race_example.gif' width=70%>
