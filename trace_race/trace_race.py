@@ -8,7 +8,6 @@ from .utils import draw_outlined_box, put_centered_text
 
 class TraceRace:
     def __init__(self, crayon_color=None, course_number=None, frame_width=500, tracker_type="csrt"):
-        # TODO: add more courses, and random/user selection
         self._course_number = course_number
         self._course_height = 110
         self.course = Course(self._course_number, height=self._course_height)
@@ -95,7 +94,7 @@ class TraceRace:
         if keypress == 32 and not self.tracker.is_tracking:  # if space bar pressed
             self.tracker.bounding_box = self.tracker_init_bound_box
             self.tracker.init(raw_frame)
-        elif keypress == ord("r"):
+        elif keypress == ord("R") or keypress == ord("r"):
             self.play_countdown = self.play_countdown_start
             self.tracker = ObjectTracker(self._tracker_type)
             self.course = Course(self._course_number, height=self._course_height)
