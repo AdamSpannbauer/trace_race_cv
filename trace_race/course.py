@@ -1,10 +1,15 @@
+import pkg_resources
 import cv2
 import imutils
 import numpy as np
 
 
 class Course:
-    def __init__(self, image_path, speed=1, height=100, display_width=200):
+    def __init__(self, course_number, speed=1, height=100, display_width=200):
+        if course_number is None:
+            course_number = 0
+
+        image_path = pkg_resources.resource_filename('trace_race', f'data/courses/course{course_number}.png')
         self.course_image = imutils.resize(cv2.imread(image_path), height=height)
         self.path = self._find_path()
         self.n_path_points = self._calc_path_points()

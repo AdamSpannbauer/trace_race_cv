@@ -1,4 +1,3 @@
-import random
 import imutils
 import cv2
 from .object_tracker import ObjectTracker
@@ -6,30 +5,15 @@ from .course import Course
 from .crayon import Crayon
 from .utils import draw_outlined_box, put_centered_text
 
-CRAYON_DIR = 'crayons'
-COURSE_DIR = 'courses'
-
-CRAYON_BGR_COLOR_DICT = {
-    'blue': (255, 0, 0),
-    'green': (0, 255, 0),
-    'pink': (240, 70, 220),
-    'red': (0, 0, 255),
-    'yellow': (60, 200, 250)
-}
-
 
 class TraceRace:
     def __init__(self, crayon_color=None, course_number=None, frame_width=500, tracker_type="csrt"):
         # TODO: add more courses, and random/user selection
-        course_number = 0
-        self._course_path = f'{COURSE_DIR}/course{course_number}.png'
+        self._course_number = course_number
         self._course_height = 110
-        self.course = Course(self._course_path, height=self._course_height)
+        self.course = Course(self._course_number, height=self._course_height)
 
-        self.crayon_color = crayon_color
-        self.crayon_color_bgr = None  # Defined by self._set_crayon_attributes()
-        self.crayon = None            # Defined by self._set_crayon_attributes()
-        self._set_crayon_attributes()
+        self.crayon = Crayon(crayon_color)
 
         self._tracker_type = tracker_type
         self.tracker = ObjectTracker(tracker_type)
@@ -41,15 +25,6 @@ class TraceRace:
                                        frame_width // 10)
 
         self.play_countdown_start = self.play_countdown = 40
-
-    def _set_crayon_attributes(self):
-        if self.crayon_color not in CRAYON_BGR_COLOR_DICT.keys():
-            print('No valid crayon color provided; choosing at random')
-
-            self.crayon_color = random.choice(list(CRAYON_BGR_COLOR_DICT.keys()))
-
-        self.crayon_color_bgr = CRAYON_BGR_COLOR_DICT[self.crayon_color]
-        self.crayon = Crayon(f'{CRAYON_DIR}/{self.crayon_color}.png', )
 
     def _update_play_countdown(self):
         self.play_countdown -= 1
@@ -114,7 +89,7 @@ class TraceRace:
                     point_on_course = self.course.is_on_course(draw_frame, (x, y))
 
                     self.crayon.draw(draw_frame, (x, y), use_color=point_on_course)
-                    self.course.draw_on_course(draw_frame, (x, y), self.crayon_color_bgr)
+                    self.course.draw_on_course(draw_frame, (x, y), self.crayon.color_bgr)
                     self._display_scores(draw_frame)
 
         if keypress == 32 and not self.tracker.is_tracking:  # if space bar pressed
@@ -123,7 +98,7 @@ class TraceRace:
         elif keypress == ord("r"):
             self.play_countdown = self.play_countdown_start
             self.tracker = ObjectTracker(self._tracker_type)
-            self.course = Course(self._course_path, height=self._course_height)
+            self.course = Course(self._course_number, height=self._course_height)
 
         return draw_frame
 
