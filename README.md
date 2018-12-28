@@ -6,9 +6,9 @@ A computer vision based version of the Mario Party mini-game 'Trace Race' (pictu
   <img src='readme/trace_race_mp.png' width=50%>
 </p>
 
-### Gameplay concept/progress:
+## Gameplay concept/progress:
 
-##### Play online with Flask built frontend*
+### Play online with Flask built frontend*
 
 **Not yet hosted anywhere*
 
@@ -16,7 +16,7 @@ A computer vision based version of the Mario Party mini-game 'Trace Race' (pictu
   <img src='readme/web_trace_race_example.gif' width=70%>
 </p>
 
-##### Play locally with OpenCV's GUI
+### Play locally with OpenCV's GUI
 
 <p align='center'>
   <img src='readme/trace_race_example.gif' width=70%>
