@@ -4,7 +4,7 @@ import cv2
 from trace_race import TraceRace
 
 keypress = -1
-flask_trace_race = TraceRace(frame_width=750)
+flask_trace_race = TraceRace(frame_width=750, data_path='../trace_race/data')
 
 
 def stream_trace_race(cv2_vidcap):
@@ -43,4 +43,3 @@ def get_post_javascript_data():
 
 if __name__ == '__main__':
     app.run(debug=True)
-

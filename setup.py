@@ -14,7 +14,7 @@ setup(
     license='MIT',
     packages=find_packages(),
     package_data={
-        '': ['*.png', '*.jpg']
+        'trace_race.data': ['*.png', '*.jpg']
     },
     install_requires=[
         'numpy',

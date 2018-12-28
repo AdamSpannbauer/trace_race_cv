@@ -28,13 +28,13 @@ class Crayon:
     >>> image = cv2.imread('my_image.png')
     >>> crayon.draw(image, (100, 100))
     """
-    def __init__(self, color, max_height=100):
+    def __init__(self, color, max_height=100, data_path=None):
         if color not in VALID_COLORS:
             print('No valid crayon color provided; choosing at random')
             color = random.choice(VALID_COLORS)
 
-        self.crayon_image = self._read_crayon_image(color, max_height)
-        self.gray_crayon_image = self._read_crayon_image('gray', max_height)
+        self.crayon_image = self._read_crayon_image(color, max_height, data_path)
+        self.gray_crayon_image = self._read_crayon_image('gray', max_height, data_path)
 
         self.color = color
         self.color_bgr = CRAYON_BGR_COLOR_DICT[color]
@@ -42,8 +42,11 @@ class Crayon:
         self.crayon_h, self.crayon_w = self.crayon_image.shape[:2]
 
     @staticmethod
-    def _read_crayon_image(color, max_height):
-        path = pkg_resources.resource_filename('trace_race', f'data/crayons/{color}.png')
+    def _read_crayon_image(color, max_height, data_path):
+        if data_path is not None:
+            path = f'{data_path}/crayons/{color}.png'
+        else:
+            path = pkg_resources.resource_filename('trace_race', f'data/crayons/{color}.png')
         crayon_image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
 
         if crayon_image.shape[0] > max_height:

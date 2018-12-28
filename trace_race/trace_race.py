@@ -7,12 +7,14 @@ from .utils import draw_outlined_box, put_centered_text
 
 
 class TraceRace:
-    def __init__(self, crayon_color=None, course_number=None, frame_width=500, tracker_type="csrt"):
+    def __init__(self, crayon_color=None, course_number=None, frame_width=500, tracker_type="csrt", data_path=None):
+        self.data_path = data_path
+
         self._course_number = course_number
         self._course_height = 110
-        self.course = Course(self._course_number, height=self._course_height)
+        self.course = Course(self._course_number, height=self._course_height, data_path=self.data_path)
 
-        self.crayon = Crayon(crayon_color)
+        self.crayon = Crayon(crayon_color, data_path=self.data_path)
 
         self._tracker_type = tracker_type
         self.tracker = ObjectTracker(tracker_type)
@@ -103,7 +105,7 @@ class TraceRace:
         elif keypress in [ord("R"), ord("r")]:
             self.play_countdown = self.play_countdown_start
             self.tracker = ObjectTracker(self._tracker_type)
-            self.course = Course(self._course_number, height=self._course_height)
+            self.course = Course(self._course_number, height=self._course_height, data_path=self.data_path)
             self.is_finished = False
 
         return draw_frame

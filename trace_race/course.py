@@ -5,11 +5,15 @@ import numpy as np
 
 
 class Course:
-    def __init__(self, course_number, speed=1, height=100, display_width=200):
+    def __init__(self, course_number, speed=1, height=100, display_width=200, data_path=None):
         if course_number is None:
             course_number = 0
 
-        image_path = pkg_resources.resource_filename('trace_race', f'data/courses/course{course_number}.png')
+        if data_path is not None:
+            image_path = f'{data_path}/courses/course{course_number}.png'
+        else:
+            image_path = pkg_resources.resource_filename('trace_race', f'data/courses/course{course_number}.png')
+
         self.course_image = imutils.resize(cv2.imread(image_path), height=height)
         self.path = self._find_path()
         self.n_path_points = self._calc_path_points()
@@ -87,7 +91,12 @@ class Course:
 
     def is_on_path(self, point):
         x, y = point
-        return self.path[y, x] == 255
+        try:
+            on_path = self.path[y, x] == 255
+        except IndexError:
+            on_path = False
+
+        return on_path
 
     def calc_accuracy_percent(self, precision=2):
         if len(self.on_path_checks) > 0:
