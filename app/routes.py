@@ -12,16 +12,12 @@ def stream_trace_race(cv2_vidcap):
 
     while True:
         grabbed, raw_frame = cv2_vidcap.read()
-        display_frame = flask_trace_race._trace_race_frame(raw_frame, int(keypress))
+        display_frame, keypress = flask_trace_race.play_flask(raw_frame, int(keypress))
 
         jpg_bytes = cv2.imencode('.jpg', display_frame)[1].tostring()
 
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + jpg_bytes + b'\r\n')
-
-        if not keypress == -1:
-            print(keypress)
-            keypress = -1
 
 
 app = Flask(__name__)

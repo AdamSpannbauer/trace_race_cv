@@ -24,6 +24,7 @@ class TraceRace:
                                        frame_width // 10)
 
         self.play_countdown_start = self.play_countdown = 40
+        self.is_finished = False
 
     def _update_play_countdown(self):
         self.play_countdown -= 1
@@ -86,20 +87,32 @@ class TraceRace:
                     self.crayon.draw(draw_frame, (x, y), use_color=True)
                 else:
                     point_on_course = self.course.is_on_course(draw_frame, (x, y))
+                    use_color_crayon = point_on_course and not self.is_finished
 
-                    self.crayon.draw(draw_frame, (x, y), use_color=point_on_course)
-                    self.course.draw_on_course(draw_frame, (x, y), self.crayon.color_bgr)
+                    self.crayon.draw(draw_frame, (x, y), use_color=use_color_crayon)
+                    self.is_finished = self.course.draw_on_course(draw_frame, (x, y),
+                                                                  self.crayon.color_bgr,
+                                                                  self.is_finished)
                     self._display_scores(draw_frame)
 
-        if keypress == 32 and not self.tracker.is_tracking:  # if space bar pressed
+        draw_frame = self.course.display_below(draw_frame)
+
+        if keypress == 32 and not self.tracker.is_tracking:
             self.tracker.bounding_box = self.tracker_init_bound_box
             self.tracker.init(raw_frame)
-        elif keypress == ord("R") or keypress == ord("r"):
+        elif keypress in [ord("R"), ord("r")]:
             self.play_countdown = self.play_countdown_start
             self.tracker = ObjectTracker(self._tracker_type)
             self.course = Course(self._course_number, height=self._course_height)
+            self.is_finished = False
 
         return draw_frame
+
+    def play_flask(self, frame, keypress):
+        reset_keypress = -1
+        display_frame = self._trace_race_frame(frame, keypress)
+
+        return display_frame, reset_keypress
 
     def play(self):
         vidcap = cv2.VideoCapture(0)

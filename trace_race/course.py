@@ -42,6 +42,10 @@ class Course:
     def _get_coords(self, image_shape):
         self.x = image_shape[1] - self.width
 
+    def display_below(self, image):
+        display_course = imutils.resize(self.course_image, width=image.shape[1])
+        return np.vstack((image, display_course))
+
     def draw(self, image, alpha=0.8, update=True):
         image_overlay = image.copy()
         cropped_course = self.course_image[:, self.course_progress:self.course_progress + self.width]
@@ -57,13 +61,23 @@ class Course:
 
         return image
 
-    def draw_on_course(self, image, point, color):
-        if self.is_on_course(image, point):
+    def draw_on_course(self, image, point, color, is_finished):
+        if self.is_on_course(image, point) and not is_finished:
             x, y = point
             x = x - self.x + self.course_progress
 
             self.on_path_checks.append(self.is_on_path((x, y)))
             cv2.circle(self.course_image, (x, y), radius=3, color=color, thickness=-1)
+
+            is_finished = self.is_finished((x, y))
+
+        return is_finished
+
+    def is_finished(self, point, tolerance=10):
+        x, _ = point
+        course_width = self.course_image.shape[1]
+
+        return course_width - x <= tolerance
 
     def is_on_course(self, image, point):
         x, y = point
@@ -82,6 +96,6 @@ class Course:
             acc = 0
         return round(100 * acc, precision)
 
-    def calc_coverage_percent(self, precision=4):
+    def calc_coverage_percent(self, precision=2):
         cov = sum(self.on_path_checks) / self.n_path_points
         return round(100 * cov, precision)
