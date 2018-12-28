@@ -26,7 +26,6 @@ class TraceRace:
         self._course_height = 110
         self.course = Course(self._course_path, height=self._course_height)
 
-        self.gray_crayon = Crayon(f'{CRAYON_DIR}/gray.png')
         self.crayon_color = crayon_color
         self.crayon_color_bgr = None  # Defined by self._set_crayon_attributes()
         self.crayon = None            # Defined by self._set_crayon_attributes()
@@ -50,7 +49,7 @@ class TraceRace:
             self.crayon_color = random.choice(list(CRAYON_BGR_COLOR_DICT.keys()))
 
         self.crayon_color_bgr = CRAYON_BGR_COLOR_DICT[self.crayon_color]
-        self.crayon = Crayon(f'{CRAYON_DIR}/{self.crayon_color}.png')
+        self.crayon = Crayon(f'{CRAYON_DIR}/{self.crayon_color}.png', )
 
     def _update_play_countdown(self):
         self.play_countdown -= 1
@@ -65,76 +64,84 @@ class TraceRace:
 
         return countdown_display
 
+    def _pre_process_frame(self, frame):
+        resized_frame = imutils.resize(frame, width=self.frame_width)
+        processed_frame = cv2.flip(resized_frame, 1)
+
+        return processed_frame, processed_frame.copy()
+
+    def _display_countdown(self, frame):
+        if self.play_countdown > 0:
+            countdown_display = self._update_play_countdown()
+            put_centered_text(frame, countdown_display,
+                              size=10, color=(0, 0, 255), thickness=10)
+
+            countdown_finished = False
+        else:
+            countdown_finished = True
+
+        return countdown_finished
+
+    def _display_scores(self, frame, size=0.6, color=(0, 0, 255), thickness=2, font=cv2.FONT_HERSHEY_SIMPLEX):
+        frame_height = frame.shape[0]
+
+        acc_text_xy = (10, frame_height - 20)
+        cov_text_xy = (10, frame_height - 40)
+
+        acc_text = f'Accuracy: {self.course.calc_accuracy_percent()}%'
+        cov_text = f'Coverage: {self.course.calc_coverage_percent()}%'
+
+        cv2.putText(frame, acc_text, acc_text_xy, font, size, color, thickness)
+        cv2.putText(frame, cov_text, cov_text_xy, font, size, color, thickness)
+
+    def _trace_race_frame(self, frame, keypress):
+        raw_frame, draw_frame = self._pre_process_frame(frame)
+
+        if not self.tracker.is_tracking:
+            draw_outlined_box(draw_frame, self.tracker_init_bound_box)
+        else:
+            countdown_finished = self._display_countdown(draw_frame)
+
+            self.tracker.update(raw_frame)
+            self.course.draw(draw_frame, update=countdown_finished)
+
+            if self.tracker.success:
+                x, y = self.tracker.center_point()
+
+                if not countdown_finished:
+                    self.crayon.draw(draw_frame, (x, y), use_color=True)
+                else:
+                    point_on_course = self.course.is_on_course(draw_frame, (x, y))
+
+                    self.crayon.draw(draw_frame, (x, y), use_color=point_on_course)
+                    self.course.draw_on_course(draw_frame, (x, y), self.crayon_color_bgr)
+                    self._display_scores(draw_frame)
+
+        if keypress == 32 and not self.tracker.is_tracking:  # if space bar pressed
+            self.tracker.bounding_box = self.tracker_init_bound_box
+            self.tracker.init(raw_frame)
+        elif keypress == ord("r"):
+            self.play_countdown = self.play_countdown_start
+            self.tracker = ObjectTracker(self._tracker_type)
+            self.course = Course(self._course_path, height=self._course_height)
+
+        return draw_frame
+
     def play(self):
         vidcap = cv2.VideoCapture(0)
+        keypress = -1
 
         while True:
-            grabbed, raw_frame = vidcap.read()
-
+            grabbed, frame = vidcap.read()
             if not grabbed:
                 break
 
-            # resize the frame and grab dimensions
-            raw_frame = imutils.resize(raw_frame, width=self.frame_width)
+            display_frame = self._trace_race_frame(frame, keypress)
+            cv2.imshow("Trace Race!", display_frame)
 
-            # flip frame for more natural motion
-            raw_frame = cv2.flip(raw_frame, 1)
-
-            draw_frame = raw_frame.copy()
-
-            # check to see if we are currently tracking an object
-            if self.tracker.is_tracking:
-                # grab the new bounding box coordinates of the object
-                self.tracker.update(raw_frame)
-                if self.play_countdown > 0:
-                    countdown_display = self._update_play_countdown()
-                    self.course.draw(draw_frame, update=False)
-                    put_centered_text(draw_frame, countdown_display,
-                                      size=10, color=(0, 0, 255), thickness=10)
-                else:
-                    self.course.draw(draw_frame)
-
-                # check to see if the tracking was a success
-                if self.tracker.success:
-                    x, y = self.tracker.center_point()
-                    if self.play_countdown > 0:
-                        self.crayon.draw(draw_frame, (x, y))
-                    else:
-                        if self.course.is_on_course(draw_frame, (x, y)):
-                            self.crayon.draw(draw_frame, (x, y))
-                            self.course.draw_on_course(draw_frame, (x, y), self.crayon_color_bgr)
-
-                        else:
-                            self.gray_crayon.draw(draw_frame, (x, y))
-
-                        text = f'Accuracy: {self.course.calc_accuracy_percent()}%'
-                        cv2.putText(draw_frame, text, (10, draw_frame.shape[0] - 20),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-
-                        text = f'Coverage: {self.course.calc_coverage_percent()}%'
-                        cv2.putText(draw_frame, text, (10, draw_frame.shape[0] - 40),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-            else:
-                draw_outlined_box(draw_frame, self.tracker_init_bound_box)
-
-            # show the output frame
-            cv2.imshow("Trace Race!", draw_frame)
-            key = cv2.waitKey(1) & 0xFF
-
-            if key == 32 and not self.tracker.is_tracking:  # if space bar pressed
-                self.tracker.bounding_box = self.tracker_init_bound_box
-                self.tracker.init(raw_frame)
-            elif key == ord("q") or key == 27:
+            keypress = cv2.waitKey(1) & 0xFF
+            if keypress == ord("q") or keypress == 27:
                 break
-            elif key == ord("r"):
-                self.play_countdown = self.play_countdown_start
-                self.tracker = ObjectTracker(self._tracker_type)
-                self.course = Course(self._course_path, height=self._course_height)
 
         vidcap.release()
-
-        # close all windows
         cv2.destroyAllWindows()
-
-
-

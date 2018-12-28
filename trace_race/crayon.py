@@ -17,14 +17,26 @@ class Crayon:
     >>> crayon.draw(image, (100, 100))
     """
     def __init__(self, crayon_image_path, max_height=100):
-        self.crayon_image = cv2.imread(crayon_image_path, cv2.IMREAD_UNCHANGED)
-
-        if self.crayon_image.shape[0] > max_height:
-            self.crayon_image = imutils.resize(self.crayon_image, height=max_height)
+        self.crayon_image = self._read_crayon_image(crayon_image_path, max_height)
+        self.gray_crayon_image = self._read_crayon_image('crayons/gray.png', max_height)
 
         self.crayon_h, self.crayon_w = self.crayon_image.shape[:2]
 
-    def draw(self, frame, tracking_centroid):
+    @staticmethod
+    def _read_crayon_image(path, max_height):
+        crayon_image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+
+        if crayon_image.shape[0] > max_height:
+            crayon_image = imutils.resize(crayon_image, height=max_height)
+
+        return crayon_image
+
+    def draw(self, frame, tracking_centroid, use_color=True):
+        if use_color:
+            crayon_image = self.crayon_image
+        else:
+            crayon_image = self.gray_crayon_image
+
         x, y = tracking_centroid
 
         # shift since tip of crayon assets not perfectly in bottom corner
@@ -38,7 +50,7 @@ class Crayon:
         crop_x = -1 * min(overhang_x, 0)
         crop_y = -1 * min(overhang_y, 0)
 
-        cropped_crayon = self.crayon_image[crop_y:, crop_x:]
+        cropped_crayon = crayon_image[crop_y:, crop_x:]
 
         # find non transparent coords of crayon image
         non_negative_space = np.where(cropped_crayon[:, :, 3] > 0)

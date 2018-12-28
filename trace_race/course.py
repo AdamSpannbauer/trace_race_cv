@@ -57,7 +57,7 @@ class Course:
             x, y = point
             x = x - self.x + self.course_progress
 
-            self.on_path_checks.append(self.is_on_path(point))
+            self.on_path_checks.append(self.is_on_path((x, y)))
             cv2.circle(self.course_image, (x, y), radius=3, color=color, thickness=-1)
 
     def is_on_course(self, image, point):
@@ -71,7 +71,10 @@ class Course:
         return self.path[y, x] == 255
 
     def calc_accuracy_percent(self, precision=2):
-        acc = sum(self.on_path_checks) / len(self.on_path_checks)
+        if len(self.on_path_checks) > 0:
+            acc = sum(self.on_path_checks) / len(self.on_path_checks)
+        else:
+            acc = 0
         return round(100 * acc, precision)
 
     def calc_coverage_percent(self, precision=4):
