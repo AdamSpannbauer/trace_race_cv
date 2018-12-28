@@ -1,0 +1,4 @@
+numpy
+imutils
+flask
+opencv-contrib-python >= 3.4.0
