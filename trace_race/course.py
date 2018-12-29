@@ -2,6 +2,7 @@ import pkg_resources
 import cv2
 import imutils
 import numpy as np
+from . import utils
 
 
 class Course:
@@ -14,7 +15,7 @@ class Course:
         else:
             image_path = pkg_resources.resource_filename('trace_race', f'data/courses/course{course_number}.png')
 
-        self.course_image = imutils.resize(cv2.imread(image_path), height=height)
+        self.course_image = imutils.resize(utils.imread_anywhere(image_path), height=height)
         self.path = self._find_path()
         self.n_path_points = self._calc_path_points()
 
@@ -48,7 +49,7 @@ class Course:
 
     def display_below(self, image):
         display_course = imutils.resize(self.course_image, width=image.shape[1])
-        return np.vstack((image, display_course))
+        return np.vstack((image, display_course[:, :, :3]))
 
     def draw(self, image, alpha=0.8, update=True):
         image_overlay = image.copy()
@@ -56,7 +57,7 @@ class Course:
 
         self._get_coords(image.shape[:2])
 
-        image_overlay[:self.height, self.x:] = cropped_course
+        image_overlay[:self.height, self.x:] = cropped_course[:, :, :3]
 
         cv2.addWeighted(image_overlay, alpha, image, 1 - alpha, 0, image)
 

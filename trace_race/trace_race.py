@@ -1,9 +1,9 @@
 import imutils
 import cv2
+from . import utils
 from .object_tracker import ObjectTracker
 from .course import Course
 from .crayon import Crayon
-from .utils import draw_outlined_box, put_centered_text
 
 
 class TraceRace:
@@ -50,8 +50,8 @@ class TraceRace:
     def _display_countdown(self, frame):
         if self.play_countdown > 0:
             countdown_display = self._update_play_countdown()
-            put_centered_text(frame, countdown_display,
-                              size=10, color=(0, 0, 255), thickness=10)
+            utils.put_centered_text(frame, countdown_display,
+                                    size=10, color=(0, 0, 255), thickness=10)
 
             countdown_finished = False
         else:
@@ -75,7 +75,7 @@ class TraceRace:
         raw_frame, draw_frame = self._pre_process_frame(frame)
 
         if not self.tracker.is_tracking:
-            draw_outlined_box(draw_frame, self.tracker_init_bound_box)
+            utils.draw_outlined_box(draw_frame, self.tracker_init_bound_box)
         else:
             countdown_finished = self._display_countdown(draw_frame)
 

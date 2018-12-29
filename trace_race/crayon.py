@@ -3,6 +3,7 @@ import pkg_resources
 import cv2
 import imutils
 import numpy as np
+from . import utils
 
 VALID_COLORS = ['blue', 'green', 'pink', 'red', 'yellow']
 
@@ -47,7 +48,7 @@ class Crayon:
             path = f'{data_path}/crayons/{color}.png'
         else:
             path = pkg_resources.resource_filename('trace_race', f'data/crayons/{color}.png')
-        crayon_image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+        crayon_image = utils.imread_anywhere(path)
 
         if crayon_image.shape[0] > max_height:
             crayon_image = imutils.resize(crayon_image, height=max_height)

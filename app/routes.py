@@ -3,12 +3,17 @@ from flask import request, Response
 import cv2
 from trace_race import TraceRace
 
-keypress = -1
-flask_trace_race = TraceRace(frame_width=750, data_path='../trace_race/data')
+
+app = Flask(__name__)
+# gave up on doing assets the right way
+IMG_PATH = 'https://raw.githubusercontent.com/AdamSpannbauer/trace_race_cv/master/trace_race/data'
 
 
-def stream_trace_race(cv2_vidcap):
+def stream_trace_race(cv2_vidcap, data_path):
     global keypress
+
+    keypress = -1
+    flask_trace_race = TraceRace(frame_width=750, data_path=data_path)
 
     while True:
         grabbed, raw_frame = cv2_vidcap.read()
@@ -20,9 +25,6 @@ def stream_trace_race(cv2_vidcap):
                b'Content-Type: image/jpeg\r\n\r\n' + jpg_bytes + b'\r\n')
 
 
-app = Flask(__name__)
-
-
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -30,7 +32,7 @@ def home():
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(stream_trace_race(cv2.VideoCapture(0)),
+    return Response(stream_trace_race(cv2.VideoCapture(0), data_path=IMG_PATH),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
