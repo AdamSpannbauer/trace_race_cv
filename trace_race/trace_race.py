@@ -11,8 +11,11 @@ class TraceRace:
         self.data_path = data_path
 
         self._course_number = course_number
-        self._course_height = 110
-        self.course = Course(self._course_number, height=self._course_height, data_path=self.data_path)
+        self._course_height = frame_width // 5 + 10
+        self.course = Course(self._course_number,
+                             height=self._course_height,
+                             display_width=(frame_width + 100) // 3,
+                             data_path=self.data_path)
 
         self.crayon = Crayon(crayon_color, data_path=self.data_path)
 
