@@ -53,12 +53,6 @@ class TraceRace:
             utils.put_centered_text(frame, countdown_display,
                                     size=10, color=(0, 0, 255), thickness=10)
 
-            countdown_finished = False
-        else:
-            countdown_finished = True
-
-        return countdown_finished
-
     def _display_scores(self, frame, size=0.6, color=(0, 0, 255), thickness=2, font=cv2.FONT_HERSHEY_SIMPLEX):
         frame_height = frame.shape[0]
 
@@ -77,10 +71,11 @@ class TraceRace:
         if not self.tracker.is_tracking:
             utils.draw_outlined_box(draw_frame, self.tracker_init_bound_box)
         else:
-            countdown_finished = self._display_countdown(draw_frame)
+            countdown_finished = self.play_countdown <= 0
 
             self.tracker.update(raw_frame)
             self.course.draw(draw_frame, update=countdown_finished)
+            self._display_countdown(draw_frame)
 
             if self.tracker.success:
                 x, y = self.tracker.center_point()
