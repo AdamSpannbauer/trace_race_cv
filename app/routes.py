@@ -36,7 +36,7 @@ def video_feed():
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
-@app.route('/postmethod', methods=['POST'])
+@app.route('/keypress', methods=['POST'])
 def get_post_javascript_data():
     global keypress
     keypress = request.form['keypress']

@@ -1,5 +1,5 @@
 document.addEventListener('keydown', function(event) {
-    $.post( "/postmethod", {
+    $.post( "/keypress", {
         keypress: event.keyCode
     });
 });
