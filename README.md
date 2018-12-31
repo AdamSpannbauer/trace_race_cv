@@ -16,6 +16,10 @@ A computer vision based version of the Mario Party mini-game 'Trace Race' (pictu
   <img src='readme/web_trace_race_example.gif' width=70%>
 </p>
 
+<p align='right'>
+  <sub>hoodie by <a href='https://www.eskibrand.com'>eski</a></sub>
+</p>
+
 ### Play locally with OpenCV's GUI*
 
 **Below example gif has a bug in coverage scoring; bug is fixed but didn't feel like re-recording gif.*
