@@ -17,7 +17,7 @@ A computer vision based version of the Mario Party mini-game 'Trace Race' (pictu
 </p>
 
 <p align='right'>
-  <sub>hoodie by <a href='https://www.eskibrand.com'>eski</a></sub>
+  *hoodie by <a href='https://www.eskibrand.com'>eski</a>
 </p>
 
 ### Play locally with OpenCV's GUI*
