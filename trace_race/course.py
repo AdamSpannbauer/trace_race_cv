@@ -27,6 +27,7 @@ class Course:
         self.width = display_width
 
         self.on_path_checks = []
+        self.prev_draw_point = None
 
     def _find_path(self):
         gray_course = cv2.cvtColor(self.course_image, cv2.COLOR_BGR2GRAY)
@@ -72,9 +73,16 @@ class Course:
             x = x - self.x + self.course_progress
 
             self.on_path_checks.append(self.is_on_path((x, y)))
-            cv2.circle(self.course_image, (x, y), radius=3, color=color, thickness=-1)
-
             is_finished = self.is_finished((x, y))
+
+            if self.prev_draw_point is None:
+                self.prev_draw_point = (x, y)
+                cv2.circle(self.course_image, (x, y), radius=3, color=color, thickness=-1)
+            else:
+                cv2.line(self.course_image, self.prev_draw_point, (x, y), color=color, thickness=3)
+                self.prev_draw_point = (x, y)
+        else:
+            self.prev_draw_point = None
 
         return is_finished
 
