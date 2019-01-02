@@ -29,15 +29,12 @@ function takePhoto(img) {
              type: "POST",
              url: "get_frame",
              data: { img: dataURL }
-          }).done(function(msg){
-             // alert(msg);
-          });
+          })
       })
       .catch();
 };
 
-/* just call */
+//
 getMediaStream();
 
-/* and when you want to capture an image */
-setInterval(function() { takePhoto() }, 0);
+setInterval(function() { takePhoto() }, 50);
