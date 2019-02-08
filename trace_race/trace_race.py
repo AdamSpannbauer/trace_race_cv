@@ -29,7 +29,7 @@ class TraceRace:
                                        frame_width // 10,
                                        frame_width // 10)
 
-        self.play_countdown_start = self.play_countdown = 40
+        self.play_countdown_start = self.play_countdown = 25
         self.is_finished = False
 
     def _update_play_countdown(self):
