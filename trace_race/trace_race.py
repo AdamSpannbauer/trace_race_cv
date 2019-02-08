@@ -1,5 +1,6 @@
 import imutils
 import cv2
+import numpy as np
 from . import utils
 from .object_tracker import ObjectTracker
 from .course import Course
@@ -108,6 +109,21 @@ class TraceRace:
 
         return draw_frame
 
+    def _append_instructions(self, frame):
+        canvas = np.ones((50, 400, 3), dtype='uint8')
+
+        if not self.tracker.is_tracking:
+            image_text = 'Place finger in box and press space to begin'
+        else:
+            image_text = "Press 'R' to reset"
+
+        utils.put_centered_text(canvas, image_text,
+                                size=0.5, color=(0, 0, 255), thickness=1)
+
+        canvas = imutils.resize(canvas, width=frame.shape[1])
+
+        return np.vstack((frame, canvas))
+
     def play_flask(self, frame, keypress):
         reset_keypress = -1
         display_frame = self._trace_race_frame(frame, keypress)
@@ -124,6 +140,7 @@ class TraceRace:
                 break
 
             display_frame = self._trace_race_frame(frame, keypress)
+            display_frame = self._append_instructions(display_frame)
             cv2.imshow("Trace Race!", display_frame)
 
             keypress = cv2.waitKey(1) & 0xFF
