@@ -22,7 +22,6 @@ setup(
     ],
     extras_require={
         'cv2': ['opencv-contrib-python >= 3.4.0'],
-        'flask': ['flask']
     },
     keywords=['video stabilization', 'game', 'image processing', 'computer vision'],
     classifiers=[
