@@ -28,7 +28,7 @@ $ pip3 install .
 *If you don't already have OpenCV installed, install with below command.*
 
 ```bash
-pip install opencv-contrib-python
+$ pip3 install opencv-contrib-python
 ```
 
 ## Usage
