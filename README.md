@@ -1,29 +1,46 @@
 # Trace Race CV
 
+<p align='center'>
+  <img src='readme/trace_race_mp.png' width=30%>
+</p>
+
 A computer vision based version of the Mario Party mini-game 'Trace Race' (pictured below).  Game will implement object tracking for players to choose how they want to trace the course.
 
 <p align='center'>
-  <img src='readme/trace_race_mp.png' width=50%>
+  <img src='readme/trace_race_example.gif' width=50%>
 </p>
 
-## Gameplay concept/progress:
+## Installation
 
-### Play online with Flask built frontend*
+* Clone repo and navigate to trace_race_cv directory
 
-**Not yet hosted anywhere.*
+```bash
+$ git clone https://github.com/AdamSpannbauer/trace_race_cv.git
+$ cd trace_race_cv.git
+```
 
-<p align='center'>
-  <img src='readme/web_trace_race_example.gif' width=70%>
-</p>
+* Install trace_race package
 
-<p align='right'>
-  *hoodie by <a href='https://www.eskibrand.com' target='_blank'>eski</a>
-</p>
+```bash
+$ pip3 install .
+```
 
-### Play locally with OpenCV's GUI*
+*If you don't already have OpenCV installed, install with below command.*
 
-**Below example gif has a bug in coverage scoring; bug is fixed but didn't feel like re-recording gif.*
+```bash
+pip install opencv-contrib-python
+```
 
-<p align='center'>
-  <img src='readme/trace_race_example.gif' width=70%>
-</p>
+## Usage
+
+* Execute `play_trace_race.py`
+
+```bash
+$ python3 play_trace_race.py
+```
+
+*Optionally add crayon color choice*
+
+```bash
+$ python3 play_trace_race.py --color blue
+```
