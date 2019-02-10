@@ -57,17 +57,37 @@ class TraceRace:
             utils.put_centered_text(frame, countdown_display,
                                     size=10, color=(0, 0, 255), thickness=10)
 
-    def _display_scores(self, frame, size=0.6, color=(0, 0, 255), thickness=2, font=cv2.FONT_HERSHEY_SIMPLEX):
+    def _display_scores(self, frame, size=0.6, color=(0, 0, 255), thickness=1, font=cv2.FONT_HERSHEY_SIMPLEX):
         frame_height = frame.shape[0]
 
-        acc_text_xy = (10, frame_height - 20)
-        cov_text_xy = (10, frame_height - 40)
+        acc_text_xy = (10, frame_height - 10)
+        cov_text_xy = (10, frame_height - 30)
 
         acc_text = f'Accuracy: {self.course.calc_accuracy_percent()}%'
         cov_text = f'Coverage: {self.course.calc_coverage_percent()}%'
 
         cv2.putText(frame, acc_text, acc_text_xy, font, size, color, thickness)
         cv2.putText(frame, cov_text, cov_text_xy, font, size, color, thickness)
+
+    def _display_instructions(self, frame):
+        instructions_canvas = np.ones((50, 200, 3), dtype='uint8')
+        scores_canvas = instructions_canvas.copy()
+
+        self._display_scores(scores_canvas)
+
+        if not self.tracker.is_tracking:
+            image_text = 'Place finger in box\n& press space'
+        else:
+            image_text = "Press 'R' to reset"
+
+        utils.put_centered_text(instructions_canvas, image_text,
+                                size=0.5, color=(150, 150, 150), thickness=1)
+
+        info_canvas = np.hstack((scores_canvas, instructions_canvas))
+
+        canvas = imutils.resize(info_canvas, width=frame.shape[1])
+
+        return np.vstack((frame, canvas))
 
     def _trace_race_frame(self, frame, keypress):
         raw_frame, draw_frame = self._pre_process_frame(frame)
@@ -94,9 +114,9 @@ class TraceRace:
                     self.is_finished = self.course.draw_on_course(draw_frame, (x, y),
                                                                   self.crayon.color_bgr,
                                                                   self.is_finished)
-                    self._display_scores(draw_frame)
 
         draw_frame = self.course.display_below(draw_frame)
+        draw_frame = self._display_instructions(draw_frame)
 
         if keypress == 32 and not self.tracker.is_tracking:
             self.tracker.bounding_box = self.tracker_init_bound_box
@@ -108,21 +128,6 @@ class TraceRace:
             self.is_finished = False
 
         return draw_frame
-
-    def _append_instructions(self, frame):
-        canvas = np.ones((50, 400, 3), dtype='uint8')
-
-        if not self.tracker.is_tracking:
-            image_text = 'Place finger in box and press space to begin'
-        else:
-            image_text = "Press 'R' to reset"
-
-        utils.put_centered_text(canvas, image_text,
-                                size=0.5, color=(0, 0, 255), thickness=1)
-
-        canvas = imutils.resize(canvas, width=frame.shape[1])
-
-        return np.vstack((frame, canvas))
 
     def play_flask(self, frame, keypress):
         reset_keypress = -1
@@ -140,7 +145,6 @@ class TraceRace:
                 break
 
             display_frame = self._trace_race_frame(frame, keypress)
-            display_frame = self._append_instructions(display_frame)
             cv2.imshow("Trace Race!", display_frame)
 
             keypress = cv2.waitKey(1) & 0xFF

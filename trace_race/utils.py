@@ -10,14 +10,33 @@ def draw_outlined_box(img, box_tuple, color_bgr=(0, 130, 255), outline_color=(91
     cv2.rectangle(img, (x, y), (x + w, y + h), color_bgr, thickness=2)
 
 
+def adjust_text_y(y, text_height, n_lines, line_index):
+    if n_lines == 1:
+        return y
+
+    line_gap = text_height // 2
+    total_height = (n_lines - 1) * (text_height + line_gap)
+
+    line_adjustment = line_index * (line_gap + text_height)
+
+    return y + line_adjustment - total_height // 2
+
+
 def put_centered_text(img, text, size, color, thickness, font=cv2.FONT_HERSHEY_SIMPLEX):
     text = str(text)
-    text_size = cv2.getTextSize(text, font, size, thickness)[0]
+    text_lines = text.split('\n')
+    n_lines = len(text_lines)
 
-    x = (img.shape[1] - text_size[0]) // 2
-    y = (img.shape[0] + text_size[1]) // 2
+    text_line_sizes = [cv2.getTextSize(l, font, size, thickness)[0] for l in text_lines]
 
-    cv2.putText(img, text, (x, y), font, size, color, thickness)
+    img_h, img_w = img.shape[:2]
+    for i, text_size in enumerate(text_line_sizes):
+        x = (img_w - text_size[0]) // 2
+        y = (img_h + text_size[1]) // 2
+
+        y = adjust_text_y(y, text_size[1], n_lines, i)
+
+        cv2.putText(img, text_lines[i], (x, y), font, size, color, thickness)
 
 
 def is_url(url):
